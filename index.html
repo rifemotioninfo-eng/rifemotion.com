@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIFEMOTION | Motion Design Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Палитра с референса */
+            --bg-main: #F2F2F2;       /* Светло-серый фон */
+            --accent-red: #FF3B30;    /* Яркий красный */
+            --accent-yellow: #D9FF00; /* Кислотный лайм */
+            --text-main: #111111;     /* Почти черный */
+            --text-secondary: #555555;
+            --card-bg: #FFFFFF;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Умеренные скругления */
+        .radius-soft {
+            border-radius: 1rem; /* 16px */
+        }
+        .radius-button {
+            border-radius: 0.75rem; /* 12px */
+        }
+
+        /* Мягкие переходы */
+        .hover-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.1);
+        }
+
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 4px;
+        }
+        
+        /* Анимация появления текста */
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+
+        /* Стили для кнопок */
+        .btn-primary {
+            background-color: var(--accent-red);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #e6352b;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background-color: var(--text-main);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #333;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 top-0 bg-[#F2F2F2]/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="w-8 h-8 bg-[var(--accent-red)] radius-button flex items-center justify-center text-white font-bold text-sm group-hover:rotate-90 transition-transform duration-300">R</div>
+                <span class="text-xl font-bold font-display tracking-tight">rifemotion</span>
+            </a>
+            
+            <div class="hidden md:flex gap-8 text-sm font-medium text-[var(--text-secondary)]">
+                <a href="#work" class="hover:text-[var(--text-main)] transition-colors">Проекты</a>
+                <a href="#process" class="hover:text-[var(--text-main)] transition-colors">Подход</a>
+                <a href="#services" class="hover:text-[var(--text-main)] transition-colors">Услуги</a>
+            </div>
+
+            <button class="bg-[var(--text-main)] text-white px-6 py-2.5 radius-button text-sm font-medium hover:bg-[var(--accent-red)] transition-colors duration-300">
+                Связаться
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-40 pb-20 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- Text Content -->
+            <div class="lg:col-span-7 fade-in-up">
+                <div class="inline-block bg-[var(--accent-yellow)] px-3 py-1 radius-button text-xs font-bold uppercase tracking-wider mb-6">
+                    Motion Design Studio
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-tight">
+                    Оживляем бренды через <span class="text-[var(--text-secondary)]">смыслы</span> и динамику.
+                </h1>
+                <p class="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-10 leading-relaxed">
+                    Мы создаем визуальные истории, которые объясняют сложные продукты, привлекают внимание и формируют эмоциональную связь с аудиторией. 
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#work" class="btn-primary px-8 py-4 radius-button font-medium text-lg flex items-center gap-2">
+                        Смотреть работы <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </a>
+                    <a href="#process" class="bg-white border border-gray-200 px-8 py-4 radius-button font-medium text-lg hover:border-gray-400 transition-colors text-[var(--text-main)]">
+                        Как мы работаем
+                    </a>
+                </div>
+            </div>
+
+            <!-- Visual Accent -->
+            <div class="lg:col-span-5 relative fade-in-up delay-200">
+                <div class="aspect-square bg-white radius-soft overflow-hidden shadow-lg relative">
+                    <!-- Decorative UI elements mimicking the reference photo style -->
+                    <div class="absolute inset-0 p-6 flex flex-col justify-between">
+                        <div class="flex justify-between items-start">
+                            <div class="w-12 h-12 bg-[var(--text-main)] rounded-full flex items-center justify-center text-white">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <div class="bg-[var(--accent-yellow)] px-3 py-1 rounded-full text-xs font-bold">
+                                REEL 2025
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="h-32 bg-[var(--accent-red)] radius-soft flex items-center justify-center text-white text-center p-4 relative overflow-hidden">
+                                <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                                <span class="font-display font-bold text-2xl relative z-10">Visual Impact</span>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex-1 h-20 bg-gray-100 radius-soft flex items-center justify-center">
+                                    <i class="fa-solid fa-cube text-2xl text-gray-400"></i>
+                                </div>
+                                <div class="flex-1 h-20 bg-[var(--text-main)] radius-soft flex items-center justify-center text-white">
+                                    <span class="font-display font-bold text-xl">3D</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics / Trust Grid -->
+    <section class="py-12 border-y border-gray-200 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left">
+                <div>
+                    <div class="text-4xl font-bold font-display mb-1">5+</div>
+                    <div class="text-sm text-[var(--text-secondary)]">Лет опыта на рынке</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold font-display mb-1">120+</div>
+                    <div class="text-sm text-[var(--text-secondary)]">Реализованных проектов</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold font-display mb-1 text-[var(--accent-red)]">100%</div>
+                    <div class="text-sm text-[var(--text-secondary)]">Соблюдение дедлайнов</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold font-display mb-1">24/7</div>
+                    <div class="text-sm text-[var(--text-secondary)]">Поддержка клиентов</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About / Methodology -->
+    <section id="process" class="py-24 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Дизайн — это не просто красивая картинка. Это инструмент решения задач.</h2>
+                    <p class="text-[var(--text-secondary)] mb-6 text-lg">
+                        Мы верим, что качественный моушн-дизайн строится на стыке аналитики и творчества. Прежде чем открыть After Effects, мы изучаем ваш продукт, аудиторию и цели.
+                    </p>
+                    <p class="text-[var(--text-secondary)] text-lg">
+                        Наш подход исключает "вкусовщину". Каждое движение, цвет и звук обоснованы и работают на удержание внимания зрителя и донесение ключевого сообщения.
+                    </p>
+                    
+                    <div class="mt-8 pt-8 border-t border-gray-300">
+                        <div class="flex items-center gap-4">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Art Director" class="w-16 h-16 rounded-full object-cover grayscale">
+                            <div>
+                                <div class="font-bold text-lg">Алексей Рифов</div>
+                                <div class="text-sm text-[var(--text-secondary)]">Арт-директор & Основатель</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- Step 1 -->
+                    <div class="bg-white p-6 radius-soft shadow-sm flex gap-6 items-start">
+                        <div class="w-10 h-10 bg-[var(--accent-yellow)] rounded-full flex-shrink-0 flex items-center justify-center font-bold text-[var(--text-main)]">01</div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-2">Бриф и Исследование</h3>
+                            <p class="text-sm text-gray-500">Погружаемся в контекст. Анализируем конкурентов и формируем визуальную стратегию.</p>
+                        </div>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="bg-white p-6 radius-soft shadow-sm flex gap-6 items-start">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-[var(--text-main)]">02</div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-2">Сценарий и Сто раскадровка</h3>
+                            <p class="text-sm text-gray-500">Создаем скелет проекта. Вы утверждаете каждый кадр до начала анимации.</p>
+                        </div>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="bg-white p-6 radius-soft shadow-sm flex gap-6 items-start border-l-4 border-[var(--accent-red)]">
+                        <div class="w-10 h-10 bg-[var(--accent-red)] rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white">03</div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-2">Анимация и Саунд-дизайн</h3>
+                            <p class="text-sm text-gray-500">Магия движения. Добавляем динамику, эффекты и профессиональную озвучку.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Grid -->
+    <section id="work" class="py-24 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-4xl font-bold mb-4">Избранные проекты</h2>
+                    <p class="text-[var(--text-secondary)]">Работы, которыми мы гордимся</p>
+                </div>
+                <a href="#" class="hidden md:inline-block text-[var(--accent-red)] font-medium hover:text-black transition-colors">
+                    Все кейсы в Behance <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Project Card 1 -->
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden radius-soft bg-gray-100 aspect-video mb-4">
+                        <img src="https://images.unsplash.com/photo-1605647540924-852290f6b0d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Project 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-[var(--accent-yellow)] rounded-full flex items-center justify-center text-black text-xl transform scale-50 group-hover:scale-100 transition-transform duration-300">
+                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1 group-hover:text-[var(--accent-red)] transition-colors">Fintech App Promo</h3>
+                            <p class="text-sm text-gray-500">3D Animation, Product Design</p>
+                        </div>
+                        <span class="text-xs border border-gray-300 rounded px-2 py-1 text-gray-500">2024</span>
+                    </div>
+                </div>
+
+                <!-- Project Card 2 -->
+                <div class="group cursor-pointer mt-0 md:mt-12">
+                    <div class="relative overflow-hidden radius-soft bg-gray-100 aspect-video mb-4">
+                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Project 2" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-[var(--accent-yellow)] rounded-full flex items-center justify-center text-black text-xl transform scale-50 group-hover:scale-100 transition-transform duration-300">
+                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1 group-hover:text-[var(--accent-red)] transition-colors">Cyberpunk Exhibition</h3>
+                            <p class="text-sm text-gray-500">Event Graphics, Typography</p>
+                        </div>
+                         <span class="text-xs border border-gray-300 rounded px-2 py-1 text-gray-500">2023</span>
+                    </div>
+                </div>
+
+                <!-- Project Card 3 -->
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden radius-soft bg-gray-100 aspect-video mb-4">
+                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Project 3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-[var(--accent-yellow)] rounded-full flex items-center justify-center text-black text-xl transform scale-50 group-hover:scale-100 transition-transform duration-300">
+                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1 group-hover:text-[var(--accent-red)] transition-colors">Eco Energy Explainer</h3>
+                            <p class="text-sm text-gray-500">2D Vector, Character Animation</p>
+                        </div>
+                         <span class="text-xs border border-gray-300 rounded px-2 py-1 text-gray-500">2024</span>
+                    </div>
+                </div>
+
+                <!-- Project Card 4 -->
+                <div class="group cursor-pointer mt-0 md:mt-12">
+                    <div class="relative overflow-hidden radius-soft bg-gray-100 aspect-video mb-4">
+                        <img src="https://images.unsplash.com/photo-1492538468650-60d281d21554?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Project 4" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-[var(--accent-yellow)] rounded-full flex items-center justify-center text-black text-xl transform scale-50 group-hover:scale-100 transition-transform duration-300">
+                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1 group-hover:text-[var(--accent-red)] transition-colors">Sports Brand ID</h3>
+                            <p class="text-sm text-gray-500">Kinetic Typography, Broadcast</p>
+                        </div>
+                         <span class="text-xs border border-gray-300 rounded px-2 py-1 text-gray-500">2023</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="py-24 px-6 bg-[var(--bg-main)]">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold mb-12 text-center md:text-left">Что мы делаем</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Service 1 -->
+                <div class="bg-white p-8 radius-soft hover-card h-full flex flex-col">
+                    <div class="w-12 h-12 bg-gray-100 radius-button flex items-center justify-center text-[var(--accent-red)] text-xl mb-6">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">3D Моушн</h3>
+                    <p class="text-[var(--text-secondary)] text-sm flex-grow">
+                        Фотореалистичная анимация продуктов, абстрактная графика и симуляции. Идеально для презентации технологических новинок.
+                    </p>
+                    <ul class="mt-6 text-sm text-gray-500 space-y-2">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Cinema 4D + Redshift</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Unreal Engine</li>
+                    </ul>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="bg-white p-8 radius-soft hover-card h-full flex flex-col border-t-4 border-[var(--accent-red)]">
+                    <div class="w-12 h-12 bg-gray-100 radius-button flex items-center justify-center text-[var(--accent-red)] text-xl mb-6">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Эксплейнеры</h3>
+                    <p class="text-[var(--text-secondary)] text-sm flex-grow">
+                        Объясняющие ролики для бизнеса. Мы переводим сложные процессы на язык понятной и увлекательной инфографики.
+                    </p>
+                    <ul class="mt-6 text-sm text-gray-500 space-y-2">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Сценарий и озвучка</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> 2D Векторная графика</li>
+                    </ul>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="bg-white p-8 radius-soft hover-card h-full flex flex-col">
+                    <div class="w-12 h-12 bg-gray-100 radius-button flex items-center justify-center text-[var(--accent-red)] text-xl mb-6">
+                        <i class="fa-solid fa-font"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Кинетическая Типографика</h3>
+                    <p class="text-[var(--text-secondary)] text-sm flex-grow">
+                        Работа с текстом как с основным визуальным элементом. Динамично, стильно и идеально подходит для соцсетей.
+                    </p>
+                    <ul class="mt-6 text-sm text-gray-500 space-y-2">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Титры для видео</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Сторис и Reels</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action / Footer -->
+    <footer class="bg-white pt-20 pb-10 px-6 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+                <div>
+                    <h2 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">Готовы обсудить ваш проект?</h2>
+                    <p class="text-xl text-[var(--text-secondary)] mb-8">
+                        Свяжитесь с нами для бесплатной консультации. Мы ответим в течение рабочего дня.
+                    </p>
+                    <a href="mailto:hello@rifemotion.com" class="inline-flex items-center gap-3 text-2xl font-medium hover:text-[var(--accent-red)] transition-colors border-b-2 border-black pb-1 hover:border-[var(--accent-red)]">
+                        hello@rifemotion.com
+                    </a>
+                </div>
+                <div class="bg-[var(--bg-main)] p-8 radius-soft flex flex-col justify-center">
+                    <form class="space-y-4" onsubmit="event.preventDefault();">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" placeholder="Имя" class="w-full p-4 bg-white radius-button border-none focus:ring-2 focus:ring-[var(--accent-yellow)] outline-none">
+                            <input type="email" placeholder="Email" class="w-full p-4 bg-white radius-button border-none focus:ring-2 focus:ring-[var(--accent-yellow)] outline-none">
+                        </div>
+                        <textarea placeholder="Опишите задачу..." rows="3" class="w-full p-4 bg-white radius-button border-none focus:ring-2 focus:ring-[var(--accent-yellow)] outline-none"></textarea>
+                        <button type="submit" class="w-full btn-primary py-4 radius-button font-bold text-lg">Отправить заявку</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-100 text-sm text-gray-400">
+                <div class="mb-4 md:mb-0">
+                    &copy; 2025 Rifemotion Studio. Все права защищены.
+                </div>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-[var(--text-main)] transition-colors"><i class="fa-brands fa-instagram text-xl"></i></a>
+                    <a href="#" class="hover:text-[var(--text-main)] transition-colors"><i class="fa-brands fa-telegram text-xl"></i></a>
+                    <a href="#" class="hover:text-[var(--text-main)] transition-colors"><i class="fa-brands fa-behance text-xl"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
