@@ -1,447 +1,515 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RIFEMOTION | Motion Design Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, ArrowRight, Mail, Instagram, Linkedin, Dribbble, X, Menu, Maximize2, Minus, Circle, Activity, Clock, ChevronDown } from 'lucide-react';
+
+// --- Custom Hooks & Utils ---
+
+const useOnScreen = (options) => {
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.disconnect();
+      }
+    }, options);
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
+  }, [ref, options]);
+
+  return [ref, isVisible];
+};
+
+const Reveal = ({ children, delay = 0, className = "" }) => {
+  const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-1000 cubic-bezier(0.16, 1, 0.3, 1) transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+};
+
+// Custom Cursor Component
+const CustomCursor = () => {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    const onMouseMove = (e) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+    };
     
-    <style>
-        :root {
-            /* Палитра с референса */
-            --bg-main: #F2F2F2;       /* Светло-серый фон */
-            --accent-red: #FF3B30;    /* Яркий красный */
-            --accent-yellow: #D9FF00; /* Кислотный лайм */
-            --text-main: #111111;     /* Почти черный */
-            --text-secondary: #555555;
-            --card-bg: #FFFFFF;
-        }
+    const onMouseOver = (e) => {
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('.interactive')) {
+        setIsHovering(true);
+      } else {
+        setIsHovering(false);
+      }
+    };
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-        }
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseover', onMouseOver);
 
-        h1, h2, h3, h4, .font-display {
-            font-family: 'Space Grotesk', sans-serif;
-        }
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseover', onMouseOver);
+    };
+  }, []);
 
-        /* Умеренные скругления */
-        .radius-soft {
-            border-radius: 1rem; /* 16px */
-        }
-        .radius-button {
-            border-radius: 0.75rem; /* 12px */
-        }
+  return (
+    <div 
+      className="fixed pointer-events-none z-[9999] hidden md:block mix-blend-difference"
+      style={{ 
+        left: position.x, 
+        top: position.y,
+        transform: `translate(-50%, -50%) scale(${isHovering ? 2.5 : 1})`,
+        transition: 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+      }}
+    >
+      <div className="w-4 h-4 bg-white rounded-full"></div>
+    </div>
+  );
+};
 
-        /* Мягкие переходы */
-        .hover-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .hover-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.1);
-        }
+// --- Components ---
 
-        /* Кастомный скроллбар */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: #ccc;
-            border-radius: 4px;
-        }
+const Navigation = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [time, setTime] = useState('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    };
+    const interval = setInterval(updateTime, 1000);
+    updateTime();
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <nav className="fixed top-0 left-0 w-full bg-[#FEFEFE]/80 backdrop-blur-md z-50 border-b border-[#2B2B2B]/5">
+      <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
         
-        /* Анимация появления текста */
-        .fade-in-up {
-            animation: fadeInUp 0.8s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
+        <a href="#" className="interactive group flex items-center gap-2">
+          <div className="w-8 h-8 bg-[#F25C19] rounded-full flex items-center justify-center text-white font-bold text-xs overflow-hidden relative">
+            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity"></div>
+            R
+          </div>
+          <span className="font-bold text-xl tracking-tighter text-[#2B2B2B]">
+            RIFEMOTION
+          </span>
+        </a>
 
-        /* Стили для кнопок */
-        .btn-primary {
-            background-color: var(--accent-red);
-            color: white;
-            transition: all 0.2s ease;
-        }
-        .btn-primary:hover {
-            background-color: #e6352b;
-            transform: scale(1.02);
-        }
-
-        .btn-secondary {
-            background-color: var(--text-main);
-            color: white;
-            transition: all 0.2s ease;
-        }
-        .btn-secondary:hover {
-            background-color: #333;
-            transform: scale(1.02);
-        }
-    </style>
-</head>
-<body class="antialiased">
-
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 top-0 bg-[#F2F2F2]/90 backdrop-blur-md border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <a href="#" class="flex items-center gap-2 group">
-                <div class="w-8 h-8 bg-[var(--accent-red)] radius-button flex items-center justify-center text-white font-bold text-sm group-hover:rotate-90 transition-transform duration-300">R</div>
-                <span class="text-xl font-bold font-display tracking-tight">rifemotion</span>
-            </a>
-            
-            <div class="hidden md:flex gap-8 text-sm font-medium text-[var(--text-secondary)]">
-                <a href="#work" class="hover:text-[var(--text-main)] transition-colors">Проекты</a>
-                <a href="#process" class="hover:text-[var(--text-main)] transition-colors">Подход</a>
-                <a href="#services" class="hover:text-[var(--text-main)] transition-colors">Услуги</a>
-            </div>
-
-            <button class="bg-[var(--text-main)] text-white px-6 py-2.5 radius-button text-sm font-medium hover:bg-[var(--accent-red)] transition-colors duration-300">
-                Связаться
-            </button>
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-12">
+          <div className="flex gap-8 text-xs font-medium tracking-widest uppercase text-[#4E4E4E] font-mono">
+            {['Work', 'Services', 'About', 'Contact'].map((link) => (
+              <a 
+                key={link} 
+                href={`#${link.toLowerCase()}`}
+                className="interactive hover:text-[#F25C19] transition-colors duration-300 flex flex-col items-center group"
+              >
+                {link}
+                <span className="w-1 h-1 rounded-full bg-[#F25C19] opacity-0 translate-y-2 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 mt-1"></span>
+              </a>
+            ))}
+          </div>
+          
+          <div className="w-px h-8 bg-[#D3D0CB]"></div>
+          
+          <div className="flex items-center gap-2 text-[#F25C19] font-mono text-xs">
+            <Activity size={14} />
+            <span>REC {time}</span>
+          </div>
         </div>
+
+        {/* Mobile Menu Button */}
+        <button className="md:hidden text-[#2B2B2B]" onClick={() => setIsOpen(!isOpen)}>
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        {/* Mobile Dropdown */}
+        {isOpen && (
+          <div className="absolute top-24 left-0 w-full bg-[#FEFEFE] border-b border-[#D3D0CB] p-6 flex flex-col gap-4 md:hidden shadow-xl">
+            {['Work', 'Services', 'About', 'Contact'].map((link) => (
+              <a 
+                key={link} 
+                href={`#${link.toLowerCase()}`}
+                className="text-2xl font-bold text-[#2B2B2B] hover:text-[#F25C19]"
+                onClick={() => setIsOpen(false)}
+              >
+                {link}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
     </nav>
+  );
+};
 
-    <!-- Hero Section -->
-    <section class="pt-40 pb-20 px-6">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            <!-- Text Content -->
-            <div class="lg:col-span-7 fade-in-up">
-                <div class="inline-block bg-[var(--accent-yellow)] px-3 py-1 radius-button text-xs font-bold uppercase tracking-wider mb-6">
-                    Motion Design Studio
-                </div>
-                <h1 class="text-5xl md:text-7xl font-bold leading-[1.1] mb-8 tracking-tight">
-                    Оживляем бренды через <span class="text-[var(--text-secondary)]">смыслы</span> и динамику.
-                </h1>
-                <p class="text-lg md:text-xl text-[var(--text-secondary)] max-w-xl mb-10 leading-relaxed">
-                    Мы создаем визуальные истории, которые объясняют сложные продукты, привлекают внимание и формируют эмоциональную связь с аудиторией. 
-                </p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="#work" class="btn-primary px-8 py-4 radius-button font-medium text-lg flex items-center gap-2">
-                        Смотреть работы <i class="fa-solid fa-arrow-right text-sm"></i>
-                    </a>
-                    <a href="#process" class="bg-white border border-gray-200 px-8 py-4 radius-button font-medium text-lg hover:border-gray-400 transition-colors text-[var(--text-main)]">
-                        Как мы работаем
-                    </a>
-                </div>
-            </div>
-
-            <!-- Visual Accent -->
-            <div class="lg:col-span-5 relative fade-in-up delay-200">
-                <div class="aspect-square bg-white radius-soft overflow-hidden shadow-lg relative">
-                    <!-- Decorative UI elements mimicking the reference photo style -->
-                    <div class="absolute inset-0 p-6 flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <div class="w-12 h-12 bg-[var(--text-main)] rounded-full flex items-center justify-center text-white">
-                                <i class="fa-solid fa-play"></i>
-                            </div>
-                            <div class="bg-[var(--accent-yellow)] px-3 py-1 rounded-full text-xs font-bold">
-                                REEL 2025
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <div class="h-32 bg-[var(--accent-red)] radius-soft flex items-center justify-center text-white text-center p-4 relative overflow-hidden">
-                                <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                                <span class="font-display font-bold text-2xl relative z-10">Visual Impact</span>
-                            </div>
-                            <div class="flex gap-4">
-                                <div class="flex-1 h-20 bg-gray-100 radius-soft flex items-center justify-center">
-                                    <i class="fa-solid fa-cube text-2xl text-gray-400"></i>
-                                </div>
-                                <div class="flex-1 h-20 bg-[var(--text-main)] radius-soft flex items-center justify-center text-white">
-                                    <span class="font-display font-bold text-xl">3D</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+const Hero = () => {
+  return (
+    <section className="pt-40 pb-20 px-6 min-h-screen flex flex-col justify-center max-w-7xl mx-auto relative overflow-hidden">
+      
+      {/* Abstract UI Decoration - Timeline */}
+      <div className="absolute left-6 bottom-10 hidden lg:flex flex-col gap-2 w-64 opacity-30 pointer-events-none">
+        <div className="flex justify-between text-[10px] font-mono text-[#2B2B2B]">
+            <span>00:00</span><span>00:15</span><span>00:30</span>
         </div>
-    </section>
-
-    <!-- Statistics / Trust Grid -->
-    <section class="py-12 border-y border-gray-200 bg-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left">
-                <div>
-                    <div class="text-4xl font-bold font-display mb-1">5+</div>
-                    <div class="text-sm text-[var(--text-secondary)]">Лет опыта на рынке</div>
-                </div>
-                <div>
-                    <div class="text-4xl font-bold font-display mb-1">120+</div>
-                    <div class="text-sm text-[var(--text-secondary)]">Реализованных проектов</div>
-                </div>
-                <div>
-                    <div class="text-4xl font-bold font-display mb-1 text-[var(--accent-red)]">100%</div>
-                    <div class="text-sm text-[var(--text-secondary)]">Соблюдение дедлайнов</div>
-                </div>
-                <div>
-                    <div class="text-4xl font-bold font-display mb-1">24/7</div>
-                    <div class="text-sm text-[var(--text-secondary)]">Поддержка клиентов</div>
-                </div>
-            </div>
+        <div className="h-12 border border-[#2B2B2B]/20 rounded relative bg-[#FAFAF9]">
+            <div className="absolute top-0 left-[20%] w-[40%] h-full bg-[#F25C19]/20 border-l border-r border-[#F25C19]/40"></div>
+            <div className="absolute top-0 left-[45%] h-full w-px bg-[#F25C19]"></div>
         </div>
-    </section>
-
-    <!-- About / Methodology -->
-    <section id="process" class="py-24 px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                <div>
-                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Дизайн — это не просто красивая картинка. Это инструмент решения задач.</h2>
-                    <p class="text-[var(--text-secondary)] mb-6 text-lg">
-                        Мы верим, что качественный моушн-дизайн строится на стыке аналитики и творчества. Прежде чем открыть After Effects, мы изучаем ваш продукт, аудиторию и цели.
-                    </p>
-                    <p class="text-[var(--text-secondary)] text-lg">
-                        Наш подход исключает "вкусовщину". Каждое движение, цвет и звук обоснованы и работают на удержание внимания зрителя и донесение ключевого сообщения.
-                    </p>
-                    
-                    <div class="mt-8 pt-8 border-t border-gray-300">
-                        <div class="flex items-center gap-4">
-                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Art Director" class="w-16 h-16 rounded-full object-cover grayscale">
-                            <div>
-                                <div class="font-bold text-lg">Алексей Рифов</div>
-                                <div class="text-sm text-[var(--text-secondary)]">Арт-директор & Основатель</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 gap-6">
-                    <!-- Step 1 -->
-                    <div class="bg-white p-6 radius-soft shadow-sm flex gap-6 items-start">
-                        <div class="w-10 h-10 bg-[var(--accent-yellow)] rounded-full flex-shrink-0 flex items-center justify-center font-bold text-[var(--text-main)]">01</div>
-                        <div>
-                            <h3 class="font-bold text-xl mb-2">Бриф и Исследование</h3>
-                            <p class="text-sm text-gray-500">Погружаемся в контекст. Анализируем конкурентов и формируем визуальную стратегию.</p>
-                        </div>
-                    </div>
-                    <!-- Step 2 -->
-                    <div class="bg-white p-6 radius-soft shadow-sm flex gap-6 items-start">
-                        <div class="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-[var(--text-main)]">02</div>
-                        <div>
-                            <h3 class="font-bold text-xl mb-2">Сценарий и Сто раскадровка</h3>
-                            <p class="text-sm text-gray-500">Создаем скелет проекта. Вы утверждаете каждый кадр до начала анимации.</p>
-                        </div>
-                    </div>
-                    <!-- Step 3 -->
-                    <div class="bg-white p-6 radius-soft shadow-sm flex gap-6 items-start border-l-4 border-[var(--accent-red)]">
-                        <div class="w-10 h-10 bg-[var(--accent-red)] rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white">03</div>
-                        <div>
-                            <h3 class="font-bold text-xl mb-2">Анимация и Саунд-дизайн</h3>
-                            <p class="text-sm text-gray-500">Магия движения. Добавляем динамику, эффекты и профессиональную озвучку.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div className="h-2 w-full bg-[#2B2B2B]/10 rounded-full overflow-hidden">
+            <div className="h-full w-[45%] bg-[#2B2B2B]"></div>
         </div>
-    </section>
+      </div>
 
-    <!-- Portfolio Grid -->
-    <section id="work" class="py-24 px-6 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-end mb-12">
-                <div>
-                    <h2 class="text-4xl font-bold mb-4">Избранные проекты</h2>
-                    <p class="text-[var(--text-secondary)]">Работы, которыми мы гордимся</p>
-                </div>
-                <a href="#" class="hidden md:inline-block text-[var(--accent-red)] font-medium hover:text-black transition-colors">
-                    Все кейсы в Behance <i class="fa-solid fa-arrow-right ml-1"></i>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="lg:col-span-8 z-10">
+          <Reveal>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#F25C19] text-[#F25C19] font-mono text-xs font-medium tracking-wider mb-8 bg-[#F25C19]/5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F25C19] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F25C19]"></span>
+              </span>
+              AVAILABLE FOR FREELANCE
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <h1 className="text-6xl md:text-8xl font-bold text-[#2B2B2B] leading-[0.9] tracking-tight mb-8">
+              DIGITAL <br />
+              <span className="italic font-serif font-light text-[#4E4E4E]">KINETICS</span> & <br />
+              MOTION
+            </h1>
+          </Reveal>
+          <Reveal delay={200}>
+            <p className="text-[#4E4E4E] max-w-lg text-lg leading-relaxed mb-10 font-light border-l-2 border-[#F25C19] pl-6">
+              Refining brands through precise movement. <br/>
+              Specializing in 2D motion, typography, and interface behaviors.
+            </p>
+          </Reveal>
+          <Reveal delay={300}>
+            <div className="flex items-center gap-6">
+                <button className="interactive bg-[#2B2B2B] text-white px-8 py-4 rounded font-medium hover:bg-[#F25C19] transition-all duration-300 flex items-center gap-3 shadow-xl shadow-[#2B2B2B]/20 hover:shadow-[#F25C19]/30 group">
+                    <Play size={16} fill="currentColor" />
+                    <span>WATCH REEL</span>
+                </button>
+                <a href="#work" className="interactive font-mono text-xs text-[#4E4E4E] hover:text-[#2B2B2B] border-b border-transparent hover:border-[#2B2B2B] transition-all">
+                    SCROLL TO EXPLORE ↓
                 </a>
             </div>
+          </Reveal>
+        </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Project Card 1 -->
-                <div class="group cursor-pointer">
-                    <div class="relative overflow-hidden radius-soft bg-gray-100 aspect-video mb-4">
-                        <img src="https://images.unsplash.com/photo-1605647540924-852290f6b0d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Project 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <div class="w-16 h-16 bg-[var(--accent-yellow)] rounded-full flex items-center justify-center text-black text-xl transform scale-50 group-hover:scale-100 transition-transform duration-300">
-                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
-                            </div>
+        {/* Hero Visual - "Bezier Curve Tool" */}
+        <div className="hidden lg:block lg:col-span-4 relative h-96 w-full">
+            <Reveal delay={400}>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full border border-[#D3D0CB] bg-[#FAFAF9] rounded-lg shadow-2xl p-4">
+                    {/* Fake Window Header */}
+                    <div className="flex justify-between items-center border-b border-[#D3D0CB] pb-2 mb-4">
+                        <div className="flex gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#D3D0CB]"></div>
+                            <div className="w-3 h-3 rounded-full bg-[#D3D0CB]"></div>
                         </div>
+                        <div className="text-[10px] font-mono text-[#4E4E4E] uppercase">Ease_Out.jsx</div>
                     </div>
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-xl font-bold mb-1 group-hover:text-[var(--accent-red)] transition-colors">Fintech App Promo</h3>
-                            <p class="text-sm text-gray-500">3D Animation, Product Design</p>
-                        </div>
-                        <span class="text-xs border border-gray-300 rounded px-2 py-1 text-gray-500">2024</span>
+                    {/* The Curve */}
+                    <div className="relative h-64 w-full bg-white border border-[#D3D0CB]/30 overflow-hidden grid grid-cols-6 grid-rows-6 gap-px">
+                        {/* Grid lines */}
+                        {[...Array(7)].map((_, i) => (
+                             <div key={i} className="absolute left-0 w-full h-px bg-[#F2F2F2] top-[16.6%]" style={{top: `${i * 16.6}%`}}></div>
+                        ))}
+                        {[...Array(7)].map((_, i) => (
+                             <div key={i} className="absolute top-0 h-full w-px bg-[#F2F2F2]" style={{left: `${i * 16.6}%`}}></div>
+                        ))}
+                        
+                        {/* Bezier Curve SVG */}
+                        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
+                            <path d="M0,100 C50,100 20,0 100,0" fill="none" stroke="#F25C19" strokeWidth="1" />
+                            {/* Control Handles */}
+                            <line x1="0" y1="100" x2="50" y2="100" stroke="#2B2B2B" strokeWidth="0.5" strokeDasharray="2,2" />
+                            <circle cx="50" cy="100" r="2" fill="#2B2B2B" />
+                            
+                            <line x1="100" y1="0" x2="20" y2="0" stroke="#2B2B2B" strokeWidth="0.5" strokeDasharray="2,2" />
+                            <circle cx="20" cy="0" r="2" fill="#2B2B2B" />
+                            
+                            {/* Animated Dot */}
+                            <circle r="3" fill="#F25C19">
+                                <animateMotion 
+                                    dur="2s" 
+                                    repeatCount="indefinite"
+                                    path="M0,100 C50,100 20,0 100,0"
+                                    calcMode="spline"
+                                    keySplines="0.5 0 0.5 1"
+                                />
+                            </circle>
+                        </svg>
                     </div>
                 </div>
+            </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+};
 
-                <!-- Project Card 2 -->
-                <div class="group cursor-pointer mt-0 md:mt-12">
-                    <div class="relative overflow-hidden radius-soft bg-gray-100 aspect-video mb-4">
-                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Project 2" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <div class="w-16 h-16 bg-[var(--accent-yellow)] rounded-full flex items-center justify-center text-black text-xl transform scale-50 group-hover:scale-100 transition-transform duration-300">
-                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-xl font-bold mb-1 group-hover:text-[var(--accent-red)] transition-colors">Cyberpunk Exhibition</h3>
-                            <p class="text-sm text-gray-500">Event Graphics, Typography</p>
-                        </div>
-                         <span class="text-xs border border-gray-300 rounded px-2 py-1 text-gray-500">2023</span>
-                    </div>
-                </div>
-
-                <!-- Project Card 3 -->
-                <div class="group cursor-pointer">
-                    <div class="relative overflow-hidden radius-soft bg-gray-100 aspect-video mb-4">
-                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Project 3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <div class="w-16 h-16 bg-[var(--accent-yellow)] rounded-full flex items-center justify-center text-black text-xl transform scale-50 group-hover:scale-100 transition-transform duration-300">
-                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-xl font-bold mb-1 group-hover:text-[var(--accent-red)] transition-colors">Eco Energy Explainer</h3>
-                            <p class="text-sm text-gray-500">2D Vector, Character Animation</p>
-                        </div>
-                         <span class="text-xs border border-gray-300 rounded px-2 py-1 text-gray-500">2024</span>
-                    </div>
-                </div>
-
-                <!-- Project Card 4 -->
-                <div class="group cursor-pointer mt-0 md:mt-12">
-                    <div class="relative overflow-hidden radius-soft bg-gray-100 aspect-video mb-4">
-                        <img src="https://images.unsplash.com/photo-1492538468650-60d281d21554?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Project 4" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <div class="w-16 h-16 bg-[var(--accent-yellow)] rounded-full flex items-center justify-center text-black text-xl transform scale-50 group-hover:scale-100 transition-transform duration-300">
-                                <i class="fa-solid fa-arrow-right -rotate-45"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-xl font-bold mb-1 group-hover:text-[var(--accent-red)] transition-colors">Sports Brand ID</h3>
-                            <p class="text-sm text-gray-500">Kinetic Typography, Broadcast</p>
-                        </div>
-                         <span class="text-xs border border-gray-300 rounded px-2 py-1 text-gray-500">2023</span>
-                    </div>
-                </div>
+const ProjectWindow = ({ title, category, year, color, index }) => {
+  return (
+    <div className="interactive group mb-12">
+      <div className="flex justify-between items-end mb-3 px-1">
+        <div>
+            <h3 className="text-2xl font-bold text-[#2B2B2B] group-hover:text-[#F25C19] transition-colors">{title}</h3>
+            <div className="flex gap-2 text-xs font-mono text-[#4E4E4E] mt-1">
+                <span className="bg-[#F2F2F2] px-1 rounded text-[#2B2B2B] border border-[#D3D0CB]">1920x1080</span>
+                <span>// {category}</span>
             </div>
         </div>
-    </section>
+        <span className="font-mono text-xs text-[#D3D0CB]">0{index + 1}</span>
+      </div>
+      
+      {/* Window Frame Style Card */}
+      <div className="relative bg-white rounded-lg border border-[#D3D0CB] shadow-sm group-hover:shadow-xl group-hover:shadow-[#F25C19]/10 transition-all duration-500 overflow-hidden">
+        {/* Window Header */}
+        <div className="h-8 bg-[#FAFAF9] border-b border-[#D3D0CB] flex items-center px-3 justify-between">
+             <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#D3D0CB] group-hover:bg-[#F25C19] transition-colors"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-[#D3D0CB]"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-[#D3D0CB]"></div>
+             </div>
+             <div className="text-[9px] font-mono text-[#4E4E4E] opacity-50 uppercase tracking-widest">{title}.mp4</div>
+        </div>
 
-    <!-- Services -->
-    <section id="services" class="py-24 px-6 bg-[var(--bg-main)]">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-4xl font-bold mb-12 text-center md:text-left">Что мы делаем</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Service 1 -->
-                <div class="bg-white p-8 radius-soft hover-card h-full flex flex-col">
-                    <div class="w-12 h-12 bg-gray-100 radius-button flex items-center justify-center text-[var(--accent-red)] text-xl mb-6">
-                        <i class="fa-solid fa-cube"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">3D Моушн</h3>
-                    <p class="text-[var(--text-secondary)] text-sm flex-grow">
-                        Фотореалистичная анимация продуктов, абстрактная графика и симуляции. Идеально для презентации технологических новинок.
-                    </p>
-                    <ul class="mt-6 text-sm text-gray-500 space-y-2">
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Cinema 4D + Redshift</li>
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Unreal Engine</li>
-                    </ul>
-                </div>
-
-                <!-- Service 2 -->
-                <div class="bg-white p-8 radius-soft hover-card h-full flex flex-col border-t-4 border-[var(--accent-red)]">
-                    <div class="w-12 h-12 bg-gray-100 radius-button flex items-center justify-center text-[var(--accent-red)] text-xl mb-6">
-                        <i class="fa-solid fa-video"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Эксплейнеры</h3>
-                    <p class="text-[var(--text-secondary)] text-sm flex-grow">
-                        Объясняющие ролики для бизнеса. Мы переводим сложные процессы на язык понятной и увлекательной инфографики.
-                    </p>
-                    <ul class="mt-6 text-sm text-gray-500 space-y-2">
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Сценарий и озвучка</li>
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> 2D Векторная графика</li>
-                    </ul>
-                </div>
-
-                <!-- Service 3 -->
-                <div class="bg-white p-8 radius-soft hover-card h-full flex flex-col">
-                    <div class="w-12 h-12 bg-gray-100 radius-button flex items-center justify-center text-[var(--accent-red)] text-xl mb-6">
-                        <i class="fa-solid fa-font"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Кинетическая Типографика</h3>
-                    <p class="text-[var(--text-secondary)] text-sm flex-grow">
-                        Работа с текстом как с основным визуальным элементом. Динамично, стильно и идеально подходит для соцсетей.
-                    </p>
-                    <ul class="mt-6 text-sm text-gray-500 space-y-2">
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Титры для видео</li>
-                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-[var(--accent-yellow)] text-xs"></i> Сторис и Reels</li>
-                    </ul>
+        {/* Content/Thumbnail */}
+        <div className="relative aspect-video overflow-hidden bg-[#E5E5E5]">
+            <div className={`absolute inset-0 ${color} opacity-20 mix-blend-multiply`}></div>
+            
+            {/* Hover overlay */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/10 backdrop-blur-[2px]">
+                <div className="bg-white/90 text-[#2B2B2B] px-6 py-2 rounded-full font-mono text-xs font-bold tracking-widest uppercase flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <Play size={10} fill="currentColor" /> Play Preview
                 </div>
             </div>
+            
+            {/* Abstract content simulation */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 border-2 border-[#2B2B2B]/10 rotate-45 group-hover:rotate-90 transition-transform duration-700 ease-out"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/3 h-1/3 bg-[#F25C19] rounded-full opacity-0 group-hover:opacity-20 scale-0 group-hover:scale-150 transition-all duration-500"></div>
         </div>
-    </section>
+        
+        {/* Footer Info */}
+        <div className="px-4 py-2 flex justify-between text-[10px] font-mono text-[#4E4E4E] bg-[#FAFAF9] border-t border-[#D3D0CB]">
+            <span>Render: Cycles</span>
+            <span>{year}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-    <!-- Call to Action / Footer -->
-    <footer class="bg-white pt-20 pb-10 px-6 border-t border-gray-200">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+const Works = () => {
+  const projects = [
+    { title: "Vortex Identity", category: "Branding", year: "2024", color: "bg-slate-500" },
+    { title: "Nike Air Max", category: "Commercial", year: "2023", color: "bg-orange-500" },
+    { title: "Future Interface", category: "UI/UX Motion", year: "2023", color: "bg-emerald-500" },
+    { title: "Kinetic Type", category: "Experimental", year: "2024", color: "bg-indigo-500" },
+  ];
+
+  return (
+    <section className="py-32 px-6 bg-[#FAFAF9]" id="work">
+      <div className="max-w-7xl mx-auto">
+        <Reveal>
+          <div className="flex flex-col md:flex-row justify-between items-end mb-20 pb-6 border-b border-[#D3D0CB]">
+            <div>
+                <div className="text-[#F25C19] font-mono text-xs mb-2">SELECTED WORKS (04)</div>
+                <h2 className="text-4xl font-bold text-[#2B2B2B]">FEATURED PROJECTS</h2>
+            </div>
+            <button className="interactive flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[#2B2B2B] hover:text-[#F25C19] transition-colors mt-6 md:mt-0">
+              View Archive <ArrowRight size={16} />
+            </button>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+          {projects.map((p, i) => (
+            <Reveal key={i} delay={i * 100} className={i % 2 !== 0 ? "md:mt-20" : ""}>
+              <ProjectWindow {...p} index={i} />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Services = () => {
+  const services = [
+    { id: "01", title: "Motion Branding", desc: "Logo animation, bumpers, and dynamic identity systems that live on screens." },
+    { id: "02", title: "UI Interactions", desc: "Prototyping micro-interactions and interface behaviors for apps and web." },
+    { id: "03", title: "2D Animation", desc: "Explainer videos and character animation with a focus on clean geometry." },
+    { id: "04", title: "Art Direction", desc: "Visual style development and storyboarding for complex campaigns." },
+  ];
+
+  return (
+    <section className="py-32 px-6 bg-[#2B2B2B] text-[#FEFEFE]" id="services">
+      <div className="max-w-7xl mx-auto">
+        <Reveal>
+            <div className="flex items-center gap-4 mb-16 opacity-50">
+                <Activity size={20} className="text-[#F25C19]" />
+                <h2 className="font-mono text-sm tracking-widest uppercase">Capabilities & Stack</h2>
+            </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-4">
+                <Reveal>
+                    <h3 className="text-3xl font-bold leading-tight mb-6">
+                        Bridging the gap between <span className="text-[#F25C19]">design</span> and <span className="italic font-serif font-light opacity-70">execution</span>.
+                    </h3>
+                    <p className="text-[#D3D0CB]/60 text-sm leading-relaxed mb-8">
+                        Using a software-agnostic approach to solve visual problems. Whether it's After Effects, Cinema 4D, or Rive - the tool matters less than the feeling.
+                    </p>
+                    
+                    {/* "Stack" list looking like tags */}
+                    <div className="flex flex-wrap gap-2">
+                        {['After Effects', 'Figma', 'C4D', 'Redshift', 'Rive', 'Spline'].map(tool => (
+                            <span key={tool} className="px-3 py-1 border border-[#D3D0CB]/20 rounded-full text-[10px] font-mono text-[#D3D0CB] hover:border-[#F25C19] hover:text-[#F25C19] transition-colors cursor-default">
+                                {tool}
+                            </span>
+                        ))}
+                    </div>
+                </Reveal>
+            </div>
+
+            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {services.map((s, i) => (
+                    <Reveal key={i} delay={i * 100}>
+                        <div className="interactive p-8 bg-[#333333] hover:bg-[#383838] transition-colors rounded-lg border border-[#444444] hover:border-[#F25C19]/50 group h-full flex flex-col justify-between">
+                            <div>
+                                <div className="font-mono text-[#F25C19] text-xs mb-4 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                                    // MODULE {s.id}
+                                </div>
+                                <h4 className="text-xl font-bold mb-3">{s.title}</h4>
+                                <p className="text-sm text-[#D3D0CB]/60 leading-relaxed">{s.desc}</p>
+                            </div>
+                            <div className="w-full h-px bg-[#444444] mt-8 group-hover:bg-[#F25C19] transition-colors relative overflow-hidden">
+                                <div className="absolute top-0 left-0 h-full w-full bg-[#F25C19] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                            </div>
+                        </div>
+                    </Reveal>
+                ))}
+            </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Footer = () => {
+  return (
+    <footer className="bg-[#FEFEFE] pt-24 pb-12 px-6 border-t border-[#D3D0CB]" id="contact">
+      <div className="max-w-7xl mx-auto">
+        <Reveal>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-24">
                 <div>
-                    <h2 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">Готовы обсудить ваш проект?</h2>
-                    <p class="text-xl text-[var(--text-secondary)] mb-8">
-                        Свяжитесь с нами для бесплатной консультации. Мы ответим в течение рабочего дня.
+                    <h2 className="text-5xl md:text-7xl font-bold text-[#2B2B2B] tracking-tight leading-[0.9]">
+                        LET'S START <br/>
+                        <span className="text-[#F25C19]">PROJECT.</span>
+                    </h2>
+                </div>
+                <div className="flex flex-col gap-8 lg:items-end">
+                    <p className="text-[#4E4E4E] max-w-sm lg:text-right">
+                        Currently available for freelance projects and open to full-time opportunities.
                     </p>
-                    <a href="mailto:hello@rifemotion.com" class="inline-flex items-center gap-3 text-2xl font-medium hover:text-[var(--accent-red)] transition-colors border-b-2 border-black pb-1 hover:border-[var(--accent-red)]">
+                    <a 
+                        href="mailto:hello@rifemotion.com" 
+                        className="interactive text-2xl md:text-3xl font-bold text-[#2B2B2B] hover:text-[#F25C19] transition-colors underline decoration-[#D3D0CB] underline-offset-8 hover:decoration-[#F25C19]"
+                    >
                         hello@rifemotion.com
                     </a>
                 </div>
-                <div class="bg-[var(--bg-main)] p-8 radius-soft flex flex-col justify-center">
-                    <form class="space-y-4" onsubmit="event.preventDefault();">
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="text" placeholder="Имя" class="w-full p-4 bg-white radius-button border-none focus:ring-2 focus:ring-[var(--accent-yellow)] outline-none">
-                            <input type="email" placeholder="Email" class="w-full p-4 bg-white radius-button border-none focus:ring-2 focus:ring-[var(--accent-yellow)] outline-none">
-                        </div>
-                        <textarea placeholder="Опишите задачу..." rows="3" class="w-full p-4 bg-white radius-button border-none focus:ring-2 focus:ring-[var(--accent-yellow)] outline-none"></textarea>
-                        <button type="submit" class="w-full btn-primary py-4 radius-button font-bold text-lg">Отправить заявку</button>
-                    </form>
+            </div>
+        </Reveal>
+
+        <div className="flex flex-col md:flex-row justify-between items-end pt-12 border-t border-[#D3D0CB]/30">
+            <div className="flex flex-col gap-4">
+                 {/* Social Links */}
+                 <div className="flex gap-4">
+                    {[<Instagram />, <Linkedin />, <Dribbble />].map((icon, i) => (
+                        <a key={i} href="#" className="interactive w-10 h-10 border border-[#D3D0CB] rounded-full flex items-center justify-center text-[#2B2B2B] hover:bg-[#2B2B2B] hover:text-white transition-all duration-300">
+                            {React.cloneElement(icon, { size: 18 })}
+                        </a>
+                    ))}
                 </div>
             </div>
-
-            <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-100 text-sm text-gray-400">
-                <div class="mb-4 md:mb-0">
-                    &copy; 2025 Rifemotion Studio. Все права защищены.
-                </div>
-                <div class="flex gap-6">
-                    <a href="#" class="hover:text-[var(--text-main)] transition-colors"><i class="fa-brands fa-instagram text-xl"></i></a>
-                    <a href="#" class="hover:text-[var(--text-main)] transition-colors"><i class="fa-brands fa-telegram text-xl"></i></a>
-                    <a href="#" class="hover:text-[var(--text-main)] transition-colors"><i class="fa-brands fa-behance text-xl"></i></a>
-                </div>
+            
+            <div className="text-right mt-8 md:mt-0">
+                <div className="font-mono text-xs text-[#D3D0CB] mb-1">RIFEMOTION © 2025</div>
+                <div className="font-mono text-[10px] text-[#D3D0CB]/60">DESIGNED & CODED</div>
             </div>
         </div>
+      </div>
     </footer>
+  );
+};
 
-</body>
-</html>
+const App = () => {
+  return (
+    <div className="min-h-screen bg-[#FEFEFE] text-[#2B2B2B] font-sans selection:bg-[#F25C19] selection:text-white cursor-none">
+      <CustomCursor />
+      <Navigation />
+      <main>
+        <Hero />
+        {/* Rolling Text / Divider */}
+        <div className="border-y border-[#D3D0CB] bg-[#FAFAF9] py-4 overflow-hidden">
+             <div className="flex gap-8 animate-marquee whitespace-nowrap font-mono text-xs text-[#F25C19] tracking-[0.2em]">
+                {[...Array(10)].map((_, i) => (
+                    <React.Fragment key={i}>
+                        <span>/// MOTION DESIGN</span>
+                        <span className="text-[#2B2B2B]">ART DIRECTION</span>
+                        <span>UI ANIMATION</span>
+                        <span className="w-2 h-2 bg-[#2B2B2B] rounded-full"></span>
+                    </React.Fragment>
+                ))}
+             </div>
+        </div>
+        <Works />
+        <Services />
+      </main>
+      <Footer />
+
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 30s linear infinite;
+        }
+        /* Hide default cursor only on large screens where custom cursor is active */
+        @media (min-width: 768px) {
+            body {
+                cursor: none;
+            }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;
